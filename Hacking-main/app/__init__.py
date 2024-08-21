@@ -22,7 +22,8 @@ db = MySQL(app)
 login_manager_app = LoginManager(app)
 mail = Mail()
 
-UPLOAD_FOLDER = 'uploads/'
+# Ajusta la ruta de UPLOAD_FOLDER a la estructura de carpetas
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../uploads/')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Crea el directorio de uploads si no existe
