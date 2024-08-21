@@ -7,7 +7,7 @@ class DevelopmentConfig (Config):
     DEBUG = True
     MYSQL_HOST = 'localhost'
     MYSQL_USER = 'root'
-    MYSQL_PASSWORD = 'root'
+    MYSQL_PASSWORD = '1234'
     MYSQL_DB = 'tienda'
     MAIL_SERVER = 'smtp.googlemail.com'
     MAIL_PORT = 587 # TLS: TRANSPORT LAYER SECURITY: SEGURIDAD DE LA CAPA DE TRANSPORTE

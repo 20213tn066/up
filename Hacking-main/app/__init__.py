@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, url_for, redirect, flash, jsonify, Response
 import os
 from flask_mysqldb import MySQL
-#from flask_wtf.csrf import CSRFProtect
+from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_mail import Mail
 
