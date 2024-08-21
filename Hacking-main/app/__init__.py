@@ -25,8 +25,9 @@ db = MySQL(app)
 login_manager_app = LoginManager(app)
 mail = Mail()
 
-UPLOAD_FOLDER = 'uploads/'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+UPLOADS_FOLDER = 'uploads/'
+app.config['UPLOADS_FOLDER'] = UPLOADS_FOLDER
+
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
