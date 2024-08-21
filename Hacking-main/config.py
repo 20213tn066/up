@@ -6,7 +6,7 @@ class Config:
 class DevelopmentConfig (Config):
     DEBUG = True
     MYSQL_HOST = 'localhost'
-    MYSQL_USER = 'root'
+    MYSQL_USER = 'alexis'
     MYSQL_PASSWORD = '1234'
     MYSQL_DB = 'tienda'
     MAIL_SERVER = 'smtp.googlemail.com'
