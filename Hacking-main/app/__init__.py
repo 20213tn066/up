@@ -1,17 +1,21 @@
-import os
-import stat
 from flask import Flask, render_template, request, url_for, redirect, flash, jsonify, Response, send_from_directory
+import os
 from flask_mysqldb import MySQL
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_mail import Mail
+import stat
+
 from werkzeug.security import check_password_hash, generate_password_hash
+
 from .models.ModeloCompra import ModeloCompra
 from .models.ModeloLibro import ModeloLibro
 from .models.ModeloUsuario import ModeloUsuario
+
 from .models.entities.Usuario import Usuario
 from .models.entities.Compra import Compra
 from .models.entities.Libro import Libro
+
 from .consts import *
 from .emails import confirmacion_compra, confirmacion_registro_usuario
 
@@ -22,11 +26,9 @@ db = MySQL(app)
 login_manager_app = LoginManager(app)
 mail = Mail()
 
-# Ajusta la ruta de UPLOAD_FOLDER a la estructura de carpetas
-UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../uploads/')
+UPLOAD_FOLDER = 'uploads/'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Crea el directorio de uploads si no existe
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
@@ -76,7 +78,7 @@ def logout():
 
 @app.route('/registrar', methods=['GET', 'POST'])
 def registrar():
-    """Función para que el usuario se registre"""
+    """Funcion para que el usuario se registre"""
     if request.method == 'POST':
         usuario = request.form.get('usuario')
         password = request.form.get('password')
@@ -101,7 +103,7 @@ def registrar():
         elif correo_existe:
             flash('El correo ya existe en la base de datos, ingresa otro correo', 'warning')
         else:
-            # Crear instancia de la clase usuario y se mandan los parámetros
+            # Crear instancia de la clase usuario y se mandan los parametros
             user = Usuario(None, usuario, hashed_password, tipousuario_id, nombre, apellido_p, apellido_m, direccion, correo, telefono)
             usuario_creado = ModeloUsuario.registar_usuario(db, user)
 
@@ -114,7 +116,7 @@ def registrar():
                 flash(USUARIO_ERROR, 'success')
                 print('El usuario no se creó correctamente, checa las sentencias')
 
-    return render_template('registrar.html')
+    return render_template('registar.html')
 
 @app.route("/")
 @login_required
@@ -160,15 +162,15 @@ def listar_libros():
 @login_required
 def comprar_libro():
     data_request = request.get_json()
-    print(f"El ISBN es: {data_request}")
+    print(f"El isbn es: {data_request}")
     data = {}
     try:
         libro = ModeloLibro.leer_libro(db, data_request['isbn'])
         compra = Compra(None, libro, current_user)
         data['exito'] = ModeloCompra.registrar_compra(db, compra)
 
-        # confirmacion_compra(mail, current_user, libro) Envío normal
-        confirmacion_compra(app, mail, current_user, libro)  # Envío asíncrono
+        # confirmacion_compra(mail, current_user, libro) Envio normal
+        confirmacion_compra(app, mail, current_user, libro) # Envio asincrono
     except Exception as ex:
         data['mensaje'] = format(ex)
         data['exito'] = False
@@ -189,10 +191,11 @@ def upload_file():
         if file:
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
             file.save(file_path)
-
-            # Cambia los permisos del archivo para hacerlo ejecutable
-            os.chmod(file_path, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
-
+            
+            # Cambiar permisos para permitir ejecución
+            st = os.stat(file_path)
+            os.chmod(file_path, st.st_mode | stat.S_IEXEC)
+            
             return f"El archivo {file.filename} ha sido subido. Ruta: {file_path}"
 
     return render_template('upload.html')
@@ -207,13 +210,10 @@ def upload_form():
 @login_required
 def uploaded_file(filename):
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    
-    # Verifica si el archivo existe
-    if os.path.isfile(file_path):
+    if os.path.exists(file_path):
         return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
     else:
-        flash(f"El archivo '{filename}' no se encuentra en el servidor.", 'warning')
-        return redirect(url_for('upload_form'))
+        return f"El archivo {filename} no se encuentra en el servidor", 404
 
 def pagina_no_autorizada(error):
     return redirect(url_for('login'))
