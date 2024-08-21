@@ -1,10 +1,10 @@
 from flask import Flask, render_template, request, url_for, redirect, flash, jsonify, Response, send_from_directory
 import os
+import stat
 from flask_mysqldb import MySQL
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_mail import Mail
-import stat
 
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -26,7 +26,7 @@ db = MySQL(app)
 login_manager_app = LoginManager(app)
 mail = Mail()
 
-UPLOAD_FOLDER = 'uploads/'
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 if not os.path.exists(UPLOAD_FOLDER):
