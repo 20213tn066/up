@@ -197,7 +197,6 @@ def upload_file():
 
 # Plantilla de HTML para subir archivos
 @app.route("/upload_form")
-@login_required
 def upload_form():
     return render_template('upload.html')
 
